@@ -7,18 +7,27 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js'
 import serviceRoutes from './routes/services.js'
 
-dotenv.config();
-const app = express();
-app.use(cors());
-app.use(express.json());
+import publicRoutes from './routes/public.js'
+import bookingRoutes from './routes/bookings.js'
+
+dotenv.config()
+
+const app = express()
+
+app.use(cors())
+app.use(express.json())
 
 app.use('/api/auth', authRoutes)
 app.use('/api/services', serviceRoutes)
+app.use('/api/public', publicRoutes)
+app.use('/api/bookings', bookingRoutes)
 
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log('MongoDB connected')
-    app.listen(process.env.PORT, () => console.log('Server on ' + process.env.PORT))
+    app.listen(process.env.PORT, () => {
+      console.log('Server on ' + process.env.PORT)
+    })
   })
   .catch((err) => console.error(err))
