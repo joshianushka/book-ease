@@ -6,6 +6,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js'
 import serviceRoutes from './routes/services.js'
+import aiRoutes from './routes/ai.js'
 
 import publicRoutes from './routes/public.js'
 import bookingRoutes from './routes/bookings.js'
@@ -21,6 +22,7 @@ app.use('/api/auth', authRoutes)
 app.use('/api/services', serviceRoutes)
 app.use('/api/public', publicRoutes)
 app.use('/api/bookings', bookingRoutes)
+app.use('/api/ai', aiRoutes)
 
 mongoose
   .connect(process.env.MONGO_URI)
