@@ -30,8 +30,8 @@ export default function Register() {
         {error && <p className="rounded bg-red-50 p-2 text-sm text-red-600">{error}</p>}
         <input className={input} name="name" placeholder="Business name" onChange={change} />
         <input className={input} name="slug" placeholder="URL name (e.g. glow-salon)" onChange={change} />
-        <input className={input} name="email" type="email" placeholder="Email" onChange={change} />
-        <input className={input} name="password" type="password" placeholder="Password" onChange={change} />
+        <input className={input} name="email" type="email" placeholder="Email" onChange={change} value={form.email}/>
+        <input className={input} name="password" type="password" placeholder="Password (6-20 characters)" onChange={change} minLength={6} maxLength={20} value={form.password}/>
         <button className="w-full rounded-lg bg-indigo-600 py-2 font-semibold text-white hover:bg-indigo-700">
           Sign up
         </button>
@@ -42,3 +42,4 @@ export default function Register() {
     </div>
   )
 }
+

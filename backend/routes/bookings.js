@@ -14,9 +14,19 @@ const toTime = (m) =>
 router.post('/', async (req, res) => {
   const { slug, serviceId, date, startTime, customerName, customerEmail, customerPhone } = req.body
   const business = await Business.findOne({ slug })
-  const service = await Service.findById(serviceId)
-  if (!business || !service) return res.status(404).json({ message: 'Not found' })
+  if (!business) {
+  return res.status(404).json({ message: 'Business not found' })
+}
+  const service = await Service.findOne({
+  _id: serviceId,
+  business: business._id,
+})
 
+  if (!service) {
+  return res.status(404).json({
+    message: 'Service not found for this business',
+  })
+}
   const endTime = toTime(toMin(startTime) + service.duration)
 
   
@@ -45,11 +55,47 @@ router.get('/', auth, async (req, res) => {
 })
 
 
+
 router.patch('/:id', auth, async (req, res) => {
-  const booking = await Booking.findOneAndUpdate(
-    { _id: req.params.id, business: req.businessId },
-    { status: req.body.status }, { new: true })
-  res.json(booking)
+  try {
+    const allowedStatuses = ['completed', 'cancelled', 'no-show']
+    const { status } = req.body
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        message: 'Invalid status. Choose completed, cancelled, or no-show.',
+      })
+    }
+
+    const booking = await Booking.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        business: req.businessId,
+        status: 'confirmed',
+      },
+      { $set: { status } },
+      {returnDocument: 'after', runValidators: true }
+    )
+
+    if (!booking) {
+      return res.status(409).json({
+        message: 'Booking not found or its status has already been changed.',
+      })
+    }
+
+    res.json({
+      message: 'Booking status updated successfully',
+      booking,
+    })
+  } catch (err) {
+    if (err.name === 'CastError') {
+      return res.status(400).json({ message: 'Invalid booking ID' })
+    }
+
+    console.error(err)
+    res.status(500).json({ message: 'Failed to update booking status' })
+  }
 })
+
 
 export default router

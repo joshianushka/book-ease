@@ -2,6 +2,7 @@ import { Router } from 'express'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import Business from '../models/Business.js'
+import validator from 'validator'
 
 const router = Router()
 const makeToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' })
@@ -11,6 +12,8 @@ router.post('/register', async (req, res) => {
     const { name, slug, email, password } = req.body
     if (!name || !slug || !email || !password)
       return res.status(400).json({ message: 'All fields required' })
+
+    if(!validator.isEmail(email)) return res.status(400).json({ message: 'Invalid email' })
 
     const exists = await Business.findOne({ $or: [{ email }, { slug }] })
     if (exists) return res.status(400).json({ message: 'Email or URL already taken' })
