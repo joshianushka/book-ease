@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js'
 import serviceRoutes from './routes/services.js'
 import aiRoutes from './routes/ai.js'
+import redisClient from './redis.js';
 
 import publicRoutes from './routes/public.js'
 import bookingRoutes from './routes/bookings.js'
@@ -24,10 +25,24 @@ app.use('/api/public', publicRoutes)
 app.use('/api/bookings', bookingRoutes)
 app.use('/api/ai', aiRoutes)
 
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log('MongoDB connected')
+const InitializeConnection=async()=>{
+  try{
+    await redisClient.connect();
+    console.log('Redis connected');
+  }catch(err){
+    console.error('Redis connection error:', err);
+  }
+  try{
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log('MongoDB connected');
+  }catch(err){
+    console.error('MongoDB connection error:', err);
+  }
+
+}
+
+
+  InitializeConnection().then(() => {
     app.listen(process.env.PORT, () => {
       console.log('Server on ' + process.env.PORT)
     })
