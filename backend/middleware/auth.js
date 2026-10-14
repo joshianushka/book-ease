@@ -1,14 +1,22 @@
 import jwt from 'jsonwebtoken'
+import redisClient from '../redis.js'
 
-export default function auth(req, res, next) {
-  const header = req.headers.authorization
-  if (!header) return res.status(401).json({ message: 'No token' })
+export default async function auth(req, res, next) {
+  const token = req.cookies?.token
+
+  if (!token) {
+    return res.status(401).json({ message: 'No token' })
+  }
+
   try {
-    const token = header.split(' ')[1]
-    req.businessId = jwt.verify(token, process.env.JWT_SECRET).id
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    req.businessId = decoded.id
+    const isBlacklisted = await redisClient.get(`token:${token}`)
+    if (isBlacklisted) {
+      return res.status(401).json({ message: 'Token is invalid' })
+    }
     next()
   } catch {
-    res.status(401).json({ message: 'Invalid token' })
+    return res.status(401).json({ message: 'Invalid or expired token' })
   }
 }
-//"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhY2NlMGNhOWU2YmM1ODViZjg5NTE5YSIsImlhdCI6MTc5MTgxNDcxMCwiZXhwIjoxNzkyNDE5NTEwfQ.Ypu6ahHU-WObNtG6dqehStkgJLubJbsUA3tF_0EkIVk"

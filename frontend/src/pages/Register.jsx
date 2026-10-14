@@ -72,9 +72,7 @@ export default function Register() {
     try {
       const { data } = await api.post('/auth/register', form)
 
-      localStorage.setItem('token', data.token)
-      localStorage.setItem('business', JSON.stringify(data.business))
-
+      
       navigate('/dashboard')
     } catch (err) {
       setError(err.response?.data?.message || 'Something went wrong')
