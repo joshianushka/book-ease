@@ -21,7 +21,7 @@ export default function Login() {
 
     try {
       const { data } = await api.post('/auth/login', form)
-
+      localStorage.setItem('business', JSON.stringify(data.business))
       navigate('/dashboard')
     } catch (err) {
       setError(err.response?.data?.message || 'Something went wrong')

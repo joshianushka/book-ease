@@ -29,7 +29,7 @@ router.post('/register', async (req, res) => {
     const business = await Business.create({
       name, slug: slug.toLowerCase().trim(), email, password: hashed,
     })
-    res.status(201).json({ token: makeToken(business._id), business: { id: business._id, name, slug } })
+    res.status(201).json({ message: 'Registration successful. Please log in.' })
   } catch (e) {
     res.status(500).json({ message: e.message })
   }
